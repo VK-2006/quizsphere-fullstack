@@ -1,0 +1,7 @@
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import PageHeader from '../components/PageHeader'
+import Loading from '../components/Loading'
+import api, { errorMessage } from '../services/api'
+
+export default function History(){const [rows,setRows]=useState(null),[error,setError]=useState('');useEffect(()=>{api.get('/users/me/attempts').then(r=>setRows(r.data)).catch(e=>setError(errorMessage(e)))},[]);return <div className="container py-5"><PageHeader eyebrow="Performance history" title="Every attempt, in one place" subtitle="Use past results to guide what you study next."/>{error?<div className="alert alert-danger">{error}</div>:rows===null?<Loading/>:<div className="table-responsive panel p-0"><table className="table align-middle mb-0"><thead><tr><th>Quiz</th><th>Category</th><th>Date</th><th>Score</th><th>Result</th><th></th></tr></thead><tbody>{rows.map(r=><tr key={r.attemptId}><td><strong>{r.quizTitle}</strong></td><td>{r.category}</td><td>{new Date(r.startedAt).toLocaleString()}</td><td>{r.percentage}%</td><td><span className={`result-pill ${r.passed?'pass':'fail'}`}>{r.status==='IN_PROGRESS'?'In progress':r.passed?'Passed':'Not passed'}</span></td><td>{r.status!=='IN_PROGRESS'&&<Link to={`/result/${r.attemptId}`}>View</Link>}</td></tr>)}</tbody></table>{!rows.length&&<div className="empty-state">No attempts available.</div>}</div>}</div>}

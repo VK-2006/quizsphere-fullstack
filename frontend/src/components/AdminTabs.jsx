@@ -1,0 +1,2 @@
+import { NavLink } from 'react-router-dom'
+export default function AdminTabs(){const cls=({isActive})=>`admin-tab ${isActive?'active':''}`;return <div className="admin-tabs"><NavLink end className={cls} to="/admin">Overview</NavLink><NavLink className={cls} to="/admin/categories">Categories</NavLink><NavLink className={cls} to="/admin/quizzes">Quizzes</NavLink><NavLink className={cls} to="/admin/users">Users</NavLink></div>}
