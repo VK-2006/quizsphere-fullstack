@@ -1,44 +1,78 @@
 package com.quizsphere.service;
 
 import com.quizsphere.exception.EmailDeliveryException;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
-import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class EmailService {
-    private final JavaMailSender mailSender;
+    private final RestClient resendClient;
 
-    @Value("${spring.mail.username:}")
-    private String mailUsername;
+    @Value("${app.resend.api-key:}")
+    private String resendApiKey;
 
-    @Value("${app.mail.from:}")
+    @Value("${app.resend.from:QuizSphere <onboarding@resend.dev>}")
     private String configuredFrom;
 
-    public void sendPasswordResetOtp(String recipient, String fullName, String otp, long expiryMinutes) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, false, StandardCharsets.UTF_8.name());
-            String from = configuredFrom == null || configuredFrom.isBlank() ? mailUsername : configuredFrom;
-            if (from == null || from.isBlank()) {
-                throw new EmailDeliveryException("Email sender is not configured. Set MAIL_USERNAME and MAIL_APP_PASSWORD.", null);
-            }
+    @Value("${app.resend.reply-to:}")
+    private String replyTo;
 
-            helper.setFrom(from);
-            helper.setTo(recipient);
-            helper.setSubject("QuizSphere password reset OTP");
-            helper.setText(buildOtpEmail(fullName, otp, expiryMinutes), true);
-            mailSender.send(message);
-        } catch (MessagingException | MailException ex) {
-            throw new EmailDeliveryException("Unable to send the OTP email. Check the mail configuration and try again.", ex);
+    public EmailService(RestClient.Builder restClientBuilder) {
+        this.resendClient = restClientBuilder
+                .baseUrl("https://api.resend.com")
+                .build();
+    }
+
+    public void sendPasswordResetOtp(String recipient, String fullName, String otp, long expiryMinutes) {
+        if (resendApiKey == null || resendApiKey.isBlank()) {
+            throw new EmailDeliveryException(
+                    "Resend is not configured. Set RESEND_API_KEY in the backend environment variables.",
+                    null
+            );
+        }
+        if (configuredFrom == null || configuredFrom.isBlank()) {
+            throw new EmailDeliveryException(
+                    "Resend sender is not configured. Set RESEND_FROM in the backend environment variables.",
+                    null
+            );
+        }
+
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("from", configuredFrom);
+        payload.put("to", List.of(recipient));
+        payload.put("subject", "QuizSphere password reset OTP");
+        payload.put("html", buildOtpEmail(fullName, otp, expiryMinutes));
+        if (replyTo != null && !replyTo.isBlank()) {
+            payload.put("reply_to", replyTo);
+        }
+
+        try {
+            resendClient.post()
+                    .uri("/emails")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + resendApiKey)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(payload)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RestClientResponseException ex) {
+            throw new EmailDeliveryException(
+                    "Unable to send the OTP email through Resend. Check RESEND_API_KEY, RESEND_FROM, and domain verification.",
+                    ex
+            );
+        } catch (ResourceAccessException ex) {
+            throw new EmailDeliveryException(
+                    "Unable to reach the Resend email service. Try again shortly.",
+                    ex
+            );
         }
     }
 
