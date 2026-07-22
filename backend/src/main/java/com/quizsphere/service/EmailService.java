@@ -1,6 +1,8 @@
 package com.quizsphere.service;
 
 import com.quizsphere.exception.EmailDeliveryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,62 +17,73 @@ import java.util.Map;
 
 @Service
 public class EmailService {
-    private final RestClient resendClient;
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
 
-    @Value("${app.resend.api-key:}")
-    private String resendApiKey;
+    private final RestClient brevoClient;
 
-    @Value("${app.resend.from:QuizSphere <onboarding@resend.dev>}")
-    private String configuredFrom;
+    @Value("${app.brevo.api-key:}")
+    private String brevoApiKey;
 
-    @Value("${app.resend.reply-to:}")
-    private String replyTo;
+    @Value("${app.brevo.from-email:}")
+    private String fromEmail;
+
+    @Value("${app.brevo.from-name:QuizSphere}")
+    private String fromName;
 
     public EmailService(RestClient.Builder restClientBuilder) {
-        this.resendClient = restClientBuilder
-                .baseUrl("https://api.resend.com")
+        this.brevoClient = restClientBuilder
+                .baseUrl("https://api.brevo.com/v3")
                 .build();
     }
 
     public void sendPasswordResetOtp(String recipient, String fullName, String otp, long expiryMinutes) {
-        if (resendApiKey == null || resendApiKey.isBlank()) {
+        if (brevoApiKey == null || brevoApiKey.isBlank()) {
             throw new EmailDeliveryException(
-                    "Resend is not configured. Set RESEND_API_KEY in the backend environment variables.",
+                    "Brevo is not configured. Set BREVO_API_KEY in the backend environment variables.",
                     null
             );
         }
-        if (configuredFrom == null || configuredFrom.isBlank()) {
+        if (fromEmail == null || fromEmail.isBlank()) {
             throw new EmailDeliveryException(
-                    "Resend sender is not configured. Set RESEND_FROM in the backend environment variables.",
+                    "Brevo sender is not configured. Set BREVO_FROM_EMAIL in the backend environment variables.",
                     null
             );
         }
+
+        String recipientName = fullName == null || fullName.isBlank() ? "QuizSphere user" : fullName;
 
         Map<String, Object> payload = new LinkedHashMap<>();
-        payload.put("from", configuredFrom);
-        payload.put("to", List.of(recipient));
+        payload.put("sender", Map.of(
+                "name", fromName == null || fromName.isBlank() ? "QuizSphere" : fromName,
+                "email", fromEmail
+        ));
+        payload.put("to", List.of(Map.of(
+                "email", recipient,
+                "name", recipientName
+        )));
         payload.put("subject", "QuizSphere password reset OTP");
-        payload.put("html", buildOtpEmail(fullName, otp, expiryMinutes));
-        if (replyTo != null && !replyTo.isBlank()) {
-            payload.put("reply_to", replyTo);
-        }
+        payload.put("htmlContent", buildOtpEmail(recipientName, otp, expiryMinutes));
 
         try {
-            resendClient.post()
-                    .uri("/emails")
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + resendApiKey)
+            brevoClient.post()
+                    .uri("/smtp/email")
+                    .header("api-key", brevoApiKey)
+                    .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(payload)
                     .retrieve()
                     .toBodilessEntity();
         } catch (RestClientResponseException ex) {
+            log.error("Brevo email request failed with status {} and response: {}",
+                    ex.getStatusCode(), ex.getResponseBodyAsString());
             throw new EmailDeliveryException(
-                    "Unable to send the OTP email through Resend. Check RESEND_API_KEY, RESEND_FROM, and domain verification.",
+                    "Unable to send the OTP email through Brevo. Check BREVO_API_KEY and verify the Brevo sender email.",
                     ex
             );
         } catch (ResourceAccessException ex) {
+            log.error("Unable to reach Brevo email API", ex);
             throw new EmailDeliveryException(
-                    "Unable to reach the Resend email service. Try again shortly.",
+                    "Unable to reach the Brevo email service. Try again shortly.",
                     ex
             );
         }
