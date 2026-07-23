@@ -21,7 +21,9 @@ export function AuthProvider({ children }) {
 
   const register = async (payload) => {
     const { data } = await api.post('/auth/register', payload)
-    store(data); return data
+    const { recoveryCode, ...session } = data
+    store(session)
+    return { ...session, recoveryCode }
   }
 
   const googleLogin = async (credential) => {

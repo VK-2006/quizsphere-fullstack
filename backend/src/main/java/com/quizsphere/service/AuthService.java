@@ -27,6 +27,7 @@ public class AuthService {
     private final CustomUserDetailsService userDetailsService;
     private final JwtService jwtService;
     private final GoogleTokenService googleTokenService;
+    private final AccountRecoveryService accountRecoveryService;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -34,15 +35,23 @@ public class AuthService {
         if (userRepository.existsByEmailIgnoreCase(email)) {
             throw new BadRequestException("An account already exists with this email");
         }
-        User user = userRepository.save(User.builder()
+
+        User user = User.builder()
                 .fullName(request.fullName().trim())
                 .email(email)
                 .password(passwordEncoder.encode(request.password()))
                 .authProvider(AuthProvider.LOCAL)
                 .role(Role.USER)
                 .enabled(true)
-                .build());
-        return tokenResponse(user);
+                .build();
+
+        String recoveryCode = accountRecoveryService.configureNewUser(
+                user,
+                request.securityQuestion(),
+                request.securityAnswer()
+        );
+        user = userRepository.save(user);
+        return tokenResponse(user, recoveryCode);
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -50,10 +59,10 @@ public class AuthService {
         User user = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new BadRequestException("Invalid email or password"));
         if (user.getAuthProvider() == AuthProvider.GOOGLE) {
-            throw new BadRequestException("This account uses Google Sign-In. Continue with Google or set a password using Forgot Password.");
+            throw new BadRequestException("This account uses Google Sign-In. Continue with Google or set a password using account recovery.");
         }
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, request.password()));
-        return tokenResponse(user);
+        return tokenResponse(user, null);
     }
 
     @Transactional
@@ -87,12 +96,20 @@ public class AuthService {
                 user.setAvatarUrl(google.avatarUrl());
             }
         }
-        return tokenResponse(userRepository.save(user));
+        return tokenResponse(userRepository.save(user), null);
     }
 
-    private AuthResponse tokenResponse(User user) {
+    private AuthResponse tokenResponse(User user, String recoveryCode) {
         UserDetails details = userDetailsService.loadUserByUsername(user.getEmail());
-        return new AuthResponse(jwtService.generateToken(details), user.getId(), user.getFullName(),
-                user.getEmail(), user.getRole().name(), user.getAvatarUrl(), user.getAuthProvider().name());
+        return new AuthResponse(
+                jwtService.generateToken(details),
+                user.getId(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getAvatarUrl(),
+                user.getAuthProvider().name(),
+                recoveryCode
+        );
     }
 }

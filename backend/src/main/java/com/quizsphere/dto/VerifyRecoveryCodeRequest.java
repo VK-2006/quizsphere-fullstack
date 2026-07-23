@@ -2,10 +2,10 @@ package com.quizsphere.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-public record VerifyResetOtpRequest(
+public record VerifyRecoveryCodeRequest(
         @NotBlank @Email @Size(max = 150) String email,
-        @NotBlank @Pattern(regexp = "\\d{6}", message = "OTP must contain exactly 6 digits") String otp
+        @NotBlank String challengeToken,
+        @NotBlank @Size(min = 8, max = 40) String recoveryCode
 ) {}

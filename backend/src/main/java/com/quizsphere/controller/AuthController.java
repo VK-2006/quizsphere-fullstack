@@ -2,9 +2,9 @@ package com.quizsphere.controller;
 
 import com.quizsphere.dto.*;
 import com.quizsphere.entity.User;
+import com.quizsphere.service.AccountRecoveryService;
 import com.quizsphere.service.AuthService;
 import com.quizsphere.service.CurrentUserService;
-import com.quizsphere.service.PasswordResetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
     private final CurrentUserService currentUserService;
-    private final PasswordResetService passwordResetService;
+    private final AccountRecoveryService accountRecoveryService;
 
     @PostMapping("/register")
     public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
@@ -33,19 +33,30 @@ public class AuthController {
         return authService.googleLogin(request);
     }
 
-    @PostMapping("/forgot-password")
-    public MessageResponse forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
-        return passwordResetService.requestOtp(request);
+    @PostMapping("/recovery-question")
+    public RecoveryQuestionResponse recoveryQuestion(@Valid @RequestBody RecoveryQuestionRequest request) {
+        return accountRecoveryService.getQuestion(request);
     }
 
-    @PostMapping("/verify-reset-otp")
-    public ResetTokenResponse verifyResetOtp(@Valid @RequestBody VerifyResetOtpRequest request) {
-        return passwordResetService.verifyOtp(request);
+    @PostMapping("/verify-security-answer")
+    public RecoveryChallengeResponse verifySecurityAnswer(@Valid @RequestBody SecurityAnswerRequest request) {
+        return accountRecoveryService.verifySecurityAnswer(request);
+    }
+
+    @PostMapping("/verify-recovery-code")
+    public ResetTokenResponse verifyRecoveryCode(@Valid @RequestBody VerifyRecoveryCodeRequest request) {
+        return accountRecoveryService.verifyRecoveryCode(request);
+    }
+
+    @PostMapping("/reset-security-question")
+    public SecurityQuestionResetResponse resetSecurityQuestion(
+            @Valid @RequestBody ResetSecurityQuestionRequest request) {
+        return accountRecoveryService.resetSecurityQuestion(request);
     }
 
     @PostMapping("/reset-password")
     public MessageResponse resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
-        return passwordResetService.resetPassword(request);
+        return accountRecoveryService.resetPassword(request);
     }
 
     @GetMapping("/me")

@@ -271,3 +271,9 @@ body,
     padding-top: .75rem;
   }
 }
+
+/* Recovery components in dark mode */
+[data-theme="dark"] .recovery-section,
+[data-theme="dark"] .security-question-card{background:var(--surface-soft);border-color:var(--border)}
+[data-theme="dark"] .recovery-code-box{background:#242039;border-color:#756fd2;color:#d8d4ff}
+[data-theme="dark"] .recovery-code-panel{background:#1e1b2d;border-color:#504b78}

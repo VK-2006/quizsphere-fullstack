@@ -50,6 +50,25 @@ public class User {
 
     private LocalDate dateOfBirth;
 
+    @Column(name = "security_question", length = 255)
+    private String securityQuestion;
+
+    @Column(name = "security_answer_hash", length = 100)
+    private String securityAnswerHash;
+
+    @Column(name = "recovery_code_hash", length = 100)
+    private String recoveryCodeHash;
+
+    @Column(name = "recovery_failed_attempts", nullable = false, columnDefinition = "INT NOT NULL DEFAULT 0")
+    @Builder.Default
+    private int recoveryFailedAttempts = 0;
+
+    @Column(name = "recovery_locked_until")
+    private Instant recoveryLockedUntil;
+
+    @Column(name = "security_question_updated_at")
+    private Instant securityQuestionUpdatedAt;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     @Builder.Default

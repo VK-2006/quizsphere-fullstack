@@ -27,11 +27,6 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage(), null);
     }
 
-    @ExceptionHandler(EmailDeliveryException.class)
-    public ResponseEntity<ApiError> emailDelivery(EmailDeliveryException ex) {
-        return build(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage(), null);
-    }
-
     @ExceptionHandler({BadCredentialsException.class, DisabledException.class})
     public ResponseEntity<ApiError> unauthorized(Exception ex) {
         return build(HttpStatus.UNAUTHORIZED, "Invalid credentials or disabled account", null);
