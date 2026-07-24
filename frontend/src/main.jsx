@@ -9,20 +9,28 @@ import './theme.css'
 import App from './App'
 import { AuthProvider } from './context/AuthContext'
 
-const savedTheme = localStorage.getItem('quizsphere-theme')
-const initialTheme = savedTheme === 'dark' || savedTheme === 'light'
-  ? savedTheme
-  : window.matchMedia?.('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light'
+const applyTheme = theme => {
+  document.documentElement.dataset.theme = theme
+  document.documentElement.setAttribute('data-bs-theme', theme)
+  document.documentElement.style.colorScheme = theme
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute('content', theme === 'dark' ? '#0b1020' : '#fafbfe')
+}
 
-document.documentElement.dataset.theme = initialTheme
-document.documentElement.setAttribute('data-bs-theme', initialTheme)
+const savedTheme = localStorage.getItem('quizsphere-theme')
+if (savedTheme !== 'dark' && savedTheme !== 'light') {
+  const media = window.matchMedia?.('(prefers-color-scheme: dark)')
+  const syncWithSystem = event => applyTheme(event.matches ? 'dark' : 'light')
+  media?.addEventListener?.('change', syncWithSystem)
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <BrowserRouter>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
-  </BrowserRouter>
+  <React.StrictMode>
+    <BrowserRouter>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </BrowserRouter>
+  </React.StrictMode>
 )

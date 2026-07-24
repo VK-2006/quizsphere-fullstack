@@ -1,12 +1,18 @@
 # Changelog
 
-## 1.1.0 — Email OTP password recovery
+## 2.0.0 — Email-free account recovery
 
-- Added **Forgot password?** link to the sign-in page.
-- Added email entry, six-digit OTP verification, resend timer, and new-password UI.
-- Added Spring Boot mail integration with generic SMTP environment variables.
-- Added secure OTP persistence using BCrypt hashes.
-- Added 10-minute OTP expiry, five-attempt limit, and 60-second resend cooldown.
-- Added one-time reset-token verification before changing the password.
-- Added MySQL password reset table and an upgrade SQL script.
-- Added Postman requests and a password reset integration test.
+- Replaced email OTP, Gmail SMTP, Resend, and Brevo integrations.
+- Added security question and BCrypt-hashed answer during local registration.
+- Added one-time recovery-code generation and display.
+- Added question → answer → recovery-code → reset-token password recovery.
+- Added recovery-code-protected security-question replacement.
+- Added Profile-based recovery setup for existing and Google users.
+- Added attempt limits and temporary recovery lockout.
+- Added light/dark theme support and removed demo credentials.
+- Updated Docker, Railway, Vercel, SQL, Postman, and documentation.
+
+## 1.0.0 — Initial full-stack quiz platform
+
+- React frontend, Spring Boot backend, and MySQL database.
+- JWT authentication, Google Sign-In, profile, quizzes, attempts, result/review/history, and admin modules.

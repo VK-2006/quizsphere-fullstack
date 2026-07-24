@@ -2,8 +2,33 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="description" content="QuizSphere interactive full-stack quiz application" />
+    <meta name="theme-color" id="app-theme-color" content="#fafbfe" />
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      (() => {
+        try {
+          const saved = localStorage.getItem('quizsphere-theme')
+          const theme = saved === 'dark' || saved === 'light'
+            ? saved
+            : window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+
+          document.documentElement.dataset.theme = theme
+          document.documentElement.setAttribute('data-bs-theme', theme)
+          document.documentElement.style.colorScheme = theme
+          document.getElementById('app-theme-color')?.setAttribute(
+            'content',
+            theme === 'dark' ? '#0b1020' : '#fafbfe'
+          )
+        } catch {
+          document.documentElement.dataset.theme = 'light'
+          document.documentElement.setAttribute('data-bs-theme', 'light')
+        }
+      })()
+    </script>
     <title>QuizSphere</title>
   </head>
   <body>

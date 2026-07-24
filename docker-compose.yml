@@ -5,13 +5,13 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: quizsphere
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
     ports:
       - "3306:3306"
     volumes:
       - quizsphere_mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD:-root}"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -23,15 +23,20 @@ services:
     environment:
       DB_URL: jdbc:mysql://mysql:3306/quizsphere?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       DB_USERNAME: root
-      DB_PASSWORD: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      JPA_DDL_AUTO: update
       FRONTEND_URL: http://localhost:5173
-      JWT_SECRET: VGhpcy1pcy1hLWxvbmctZGVtby1zZWNyZXQta2V5LWZvci1xdWl6c3BoZXJlLWRvY2tlcg==
-      MAIL_HOST: smtp.gmail.com
-      MAIL_PORT: 587
-      MAIL_USERNAME: ${MAIL_USERNAME:-}
-      MAIL_APP_PASSWORD: ${MAIL_APP_PASSWORD:-}
-      MAIL_FROM: ${MAIL_FROM:-}
+      JWT_SECRET: ${JWT_SECRET:-REPLACE_WITH_A_PRIVATE_BASE64_SECRET}
+      JWT_EXPIRATION_MS: 86400000
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      RECOVERY_CHALLENGE_EXPIRY_MINUTES: 10
+      RESET_TOKEN_EXPIRY_MINUTES: 10
+      RECOVERY_MAX_ATTEMPTS: 5
+      RECOVERY_LOCK_MINUTES: 15
+      SEED_DATA_ENABLED: ${SEED_DATA_ENABLED:-false}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ADMIN_FULL_NAME: ${ADMIN_FULL_NAME:-QuizSphere Admin}
     ports:
       - "8080:8080"
     depends_on:

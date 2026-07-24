@@ -1,0 +1,154 @@
+QuizSphere Complete Full-Stack Source
+=====================================
+
+This is a complete project archive, not a partial patch.
+
+Core modules:
+- React/Vite frontend
+- Spring Boot backend
+- MySQL schema and migration
+- JWT authentication and authorization
+- Google Sign-In
+- User profile
+- Quiz attempt/result/review/history
+- Admin dashboard and management APIs
+- Light/dark theme
+- Security-question + recovery-code password reset
+- Docker, Railway, Vercel, Postman, and setup documentation
+
+Obsolete email OTP implementations are not included.
+No real API keys, database passwords, Gmail App Passwords, Resend keys, Brevo keys, or JWT secrets are included.
+
+Source file inventory:
+.gitignore
+CHANGELOG.md
+DEPLOYMENT_VERCEL_RAILWAY.md
+LOMBOK_FIX.md
+README.md
+START_HERE.md
+backend/.env.example
+backend/Dockerfile
+backend/pom.xml
+backend/src/main/java/com/quizsphere/QuizSphereApplication.java
+backend/src/main/java/com/quizsphere/config/DataInitializer.java
+backend/src/main/java/com/quizsphere/config/SecurityConfig.java
+backend/src/main/java/com/quizsphere/controller/AdminController.java
+backend/src/main/java/com/quizsphere/controller/AuthController.java
+backend/src/main/java/com/quizsphere/controller/ProfileController.java
+backend/src/main/java/com/quizsphere/controller/QuizController.java
+backend/src/main/java/com/quizsphere/dto/AdminQuestionResponse.java
+backend/src/main/java/com/quizsphere/dto/AttemptHistoryResponse.java
+backend/src/main/java/com/quizsphere/dto/AttemptResultResponse.java
+backend/src/main/java/com/quizsphere/dto/AuthResponse.java
+backend/src/main/java/com/quizsphere/dto/CategoryRequest.java
+backend/src/main/java/com/quizsphere/dto/CategoryResponse.java
+backend/src/main/java/com/quizsphere/dto/DashboardResponse.java
+backend/src/main/java/com/quizsphere/dto/GoogleAuthRequest.java
+backend/src/main/java/com/quizsphere/dto/LoginRequest.java
+backend/src/main/java/com/quizsphere/dto/MessageResponse.java
+backend/src/main/java/com/quizsphere/dto/OptionRequest.java
+backend/src/main/java/com/quizsphere/dto/ProfileResponse.java
+backend/src/main/java/com/quizsphere/dto/QuestionRequest.java
+backend/src/main/java/com/quizsphere/dto/QuizPlayResponse.java
+backend/src/main/java/com/quizsphere/dto/QuizRequest.java
+backend/src/main/java/com/quizsphere/dto/QuizResponse.java
+backend/src/main/java/com/quizsphere/dto/RecoveryChallengeResponse.java
+backend/src/main/java/com/quizsphere/dto/RecoveryQuestionRequest.java
+backend/src/main/java/com/quizsphere/dto/RecoveryQuestionResponse.java
+backend/src/main/java/com/quizsphere/dto/RecoverySettingsRequest.java
+backend/src/main/java/com/quizsphere/dto/RecoverySettingsResponse.java
+backend/src/main/java/com/quizsphere/dto/RegisterRequest.java
+backend/src/main/java/com/quizsphere/dto/ResetPasswordRequest.java
+backend/src/main/java/com/quizsphere/dto/ResetSecurityQuestionRequest.java
+backend/src/main/java/com/quizsphere/dto/ResetTokenResponse.java
+backend/src/main/java/com/quizsphere/dto/ReviewResponse.java
+backend/src/main/java/com/quizsphere/dto/SecurityAnswerRequest.java
+backend/src/main/java/com/quizsphere/dto/SecurityQuestionResetResponse.java
+backend/src/main/java/com/quizsphere/dto/SubmitAttemptRequest.java
+backend/src/main/java/com/quizsphere/dto/UpdateProfileRequest.java
+backend/src/main/java/com/quizsphere/dto/UserResponse.java
+backend/src/main/java/com/quizsphere/dto/VerifyRecoveryCodeRequest.java
+backend/src/main/java/com/quizsphere/entity/AttemptAnswer.java
+backend/src/main/java/com/quizsphere/entity/AttemptStatus.java
+backend/src/main/java/com/quizsphere/entity/AuthProvider.java
+backend/src/main/java/com/quizsphere/entity/Category.java
+backend/src/main/java/com/quizsphere/entity/Difficulty.java
+backend/src/main/java/com/quizsphere/entity/PasswordRecoverySession.java
+backend/src/main/java/com/quizsphere/entity/Question.java
+backend/src/main/java/com/quizsphere/entity/QuestionOption.java
+backend/src/main/java/com/quizsphere/entity/Quiz.java
+backend/src/main/java/com/quizsphere/entity/QuizAttempt.java
+backend/src/main/java/com/quizsphere/entity/Role.java
+backend/src/main/java/com/quizsphere/entity/User.java
+backend/src/main/java/com/quizsphere/exception/ApiError.java
+backend/src/main/java/com/quizsphere/exception/BadRequestException.java
+backend/src/main/java/com/quizsphere/exception/GlobalExceptionHandler.java
+backend/src/main/java/com/quizsphere/exception/ResourceNotFoundException.java
+backend/src/main/java/com/quizsphere/repository/CategoryRepository.java
+backend/src/main/java/com/quizsphere/repository/PasswordRecoverySessionRepository.java
+backend/src/main/java/com/quizsphere/repository/QuestionOptionRepository.java
+backend/src/main/java/com/quizsphere/repository/QuestionRepository.java
+backend/src/main/java/com/quizsphere/repository/QuizAttemptRepository.java
+backend/src/main/java/com/quizsphere/repository/QuizRepository.java
+backend/src/main/java/com/quizsphere/repository/UserRepository.java
+backend/src/main/java/com/quizsphere/security/CustomUserDetailsService.java
+backend/src/main/java/com/quizsphere/security/JwtAuthenticationFilter.java
+backend/src/main/java/com/quizsphere/security/JwtService.java
+backend/src/main/java/com/quizsphere/security/SecurityQuestionCatalog.java
+backend/src/main/java/com/quizsphere/service/AccountRecoveryService.java
+backend/src/main/java/com/quizsphere/service/AdminService.java
+backend/src/main/java/com/quizsphere/service/AuthService.java
+backend/src/main/java/com/quizsphere/service/CurrentUserService.java
+backend/src/main/java/com/quizsphere/service/GoogleTokenService.java
+backend/src/main/java/com/quizsphere/service/ProfileService.java
+backend/src/main/java/com/quizsphere/service/QuizService.java
+backend/src/main/resources/application.properties
+backend/src/test/java/com/quizsphere/AccountRecoveryFlowTests.java
+backend/src/test/java/com/quizsphere/QuizSphereApplicationTests.java
+backend/src/test/resources/application.properties
+database/account_recovery_migration.sql
+database/schema.sql
+docker-compose.yml
+docs/ACCOUNT_RECOVERY_SETUP.md
+docs/API.md
+docs/GOOGLE_SIGNIN_PROFILE_SETUP.md
+frontend/.env.example
+frontend/index.html
+frontend/package-lock.json
+frontend/package.json
+frontend/src/App.jsx
+frontend/src/components/AdminTabs.jsx
+frontend/src/components/AppNavbar.jsx
+frontend/src/components/GoogleAuthButton.jsx
+frontend/src/components/Loading.jsx
+frontend/src/components/PageHeader.jsx
+frontend/src/components/ProtectedRoute.jsx
+frontend/src/constants/securityQuestions.js
+frontend/src/context/AuthContext.jsx
+frontend/src/main.jsx
+frontend/src/pages/Dashboard.jsx
+frontend/src/pages/ForgotPassword.jsx
+frontend/src/pages/History.jsx
+frontend/src/pages/Home.jsx
+frontend/src/pages/Login.jsx
+frontend/src/pages/NotFound.jsx
+frontend/src/pages/Profile.jsx
+frontend/src/pages/QuizList.jsx
+frontend/src/pages/QuizPlay.jsx
+frontend/src/pages/Register.jsx
+frontend/src/pages/Result.jsx
+frontend/src/pages/Review.jsx
+frontend/src/pages/admin/AdminCategories.jsx
+frontend/src/pages/admin/AdminDashboard.jsx
+frontend/src/pages/admin/AdminQuestions.jsx
+frontend/src/pages/admin/AdminQuizzes.jsx
+frontend/src/pages/admin/AdminUsers.jsx
+frontend/src/services/api.js
+frontend/src/styles.css
+frontend/src/theme.css
+frontend/vercel.json
+frontend/vite.config.js
+postman/QuizSphere.postman_collection.json
+scripts/build-windows.bat
+scripts/run-backend-windows.bat
+scripts/run-frontend-windows.bat
